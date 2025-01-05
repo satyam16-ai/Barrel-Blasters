@@ -21,7 +21,6 @@ const drawGround = function drawGround() {
   for (let x = 0; x < gameArea.width; x += ground.width) {
     ctx.drawImage(ground, x, gameArea.height - ground.height);
   }
-  // Draw the cannon barrel first
   ctx.drawImage(
     cannon,
     ground.width + (cannon_base.width - cannon.width) / 2 + 30, 
