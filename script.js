@@ -28,7 +28,7 @@ const drawGame = () => {
     for (let x = 0; x < gameArea.width; x += ground.width) {
         ctx.drawImage(ground, x, gameArea.height - ground.height);
     }
-
+    rotateCannon(ctx, pivotX, pivotY, cannon, 0);
     ctx.drawImage(
         cannon_base,
         100,
@@ -36,7 +36,6 @@ const drawGame = () => {
     );
     ctx.drawImage(sun, 1024, 100, 128, 128);
 
-    rotateCannon(ctx, pivotX, pivotY, cannon, 0);
 };
 
 const imagesLoaded = [background, ground, cannon_base, cannon, sun];

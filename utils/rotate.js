@@ -3,7 +3,7 @@ let cannonAngle = 0;
 export function rotateCannon(ctx, pivotX, pivotY, cannonImage, angleDelta) {
   cannonAngle += angleDelta;
 
-  cannonAngle = Math.max(-45, Math.min(45, cannonAngle));
+  cannonAngle = Math.max(-90, Math.min(0, cannonAngle));
 
   ctx.save();
 
@@ -11,7 +11,11 @@ export function rotateCannon(ctx, pivotX, pivotY, cannonImage, angleDelta) {
 
   ctx.rotate(cannonAngle * (Math.PI / 180));
 
-  ctx.drawImage(cannonImage, -cannonImage.width / 2, -cannonImage.height / 2);
+  ctx.drawImage(
+    cannonImage,
+    -cannonImage.width / 2 + 35,
+    -cannonImage.height / 2
+  );
 
   ctx.restore();
 }
