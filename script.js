@@ -1,4 +1,4 @@
-import { rotateCannon } from "./utils/rotate.js";
+import { rotateCannon , getCannonAngle } from "./utils/rotate.js";
 
 const gameArea = document.getElementById("gameArea");
 const ctx = gameArea.getContext("2d");
@@ -54,55 +54,55 @@ imagesLoaded.forEach((img) => {
 window.addEventListener("keydown", (event) => {
     if (event.key === "ArrowLeft") {
         rotateCannon(ctx, pivotX, pivotY, cannon, -5);
-        drawGame();
+        drawProjectilePath(currentVelocity);
     } else if (event.key === "ArrowRight") {
         rotateCannon(ctx, pivotX, pivotY, cannon, 5);
-        drawGame();
+        drawProjectilePath(currentVelocity);
     }
 });
 let currentVelocity = 0;
 let increasing = true;
-const angle = 45;
-function drawProjectilePath(initialVelocity, angle, gravity = 9.8, timeInterval  = 0.1){
-    // Clear the canvas
-    ctx.clearRect(0, 0, gameArea.width, gameArea.height);
 
-    // Redraw all objects
+function drawProjectilePath(initialVelocity, gravity = 9.8, timeInterval = 0.1) {
+    // Clear and redraw background elements
+    ctx.clearRect(0, 0, gameArea.width, gameArea.height);
     drawBackground();
     drawCannon();
     drawCannonBase();
     drawSun();
     drawGround();
 
-    const angleRad = (angle * Math.PI) / 180;
+    // Get current cannon angle (negative because cannon rotates upward)
+    const angleRad = (-getCannonAngle() * Math.PI) / 180;
+    
+    // Calculate velocity components based on cannon angle
     const vx = initialVelocity * Math.cos(angleRad);
     const vy = initialVelocity * Math.sin(angleRad);
+
+    // Draw trajectory path
     ctx.beginPath();
-    ctx.moveTo(0, gameArea.height);
+    ctx.moveTo(pivotX, pivotY);
+    
     let t = 0;
     let x = 0;
     let y = 0;
+    
     while (y >= 0) {
         x = vx * t;
         y = vy * t - 0.5 * gravity * t * t;
 
-        const canvasX = x;
-        const canvasY = gameArea.height - y;
+        const canvasX = pivotX + x;
+        const canvasY = pivotY - y;
 
+        if (canvasX > gameArea.width || canvasY > gameArea.height) break;
+        
         ctx.lineTo(canvasX, canvasY);
-
         t += timeInterval;
-
-        if (canvasX > gameArea.width) break;
     }
-    ctx.strokeStyle = `hsl(${initialVelocity * 3.6}, 100%, 50%)`; // Color changes with velocity
+
+    // Style and draw the path
+    ctx.strokeStyle = `hsl(${initialVelocity * 3.6}, 100%, 50%)`;
     ctx.lineWidth = 2;
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(0, gameArea.height);
-    ctx.lineTo(gameArea.width, gameArea.height);
-    ctx.strokeStyle = "#000";
-    ctx.lineWidth = 1;
     ctx.stroke();
 }
 
@@ -133,18 +133,19 @@ function drawGround() {
     }
 }
 
-function updateVelocity(){
-    if(increasing){
+function updateVelocity() {
+    if(increasing) {
         currentVelocity += 1;
-        if(currentVelocity >= 100){
+        if(currentVelocity >= 100) {
             increasing = false;
         }
-    }else{
+    } else {
         currentVelocity -= 1;
-        if(currentVelocity <= 0){
+        if(currentVelocity <= 0) {
             increasing = true;
         }
     }
-    drawProjectilePath(currentVelocity, angle);
+    drawProjectilePath(currentVelocity);
 }
+
 setInterval(updateVelocity, 50);
