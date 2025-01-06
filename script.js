@@ -33,6 +33,8 @@ let projectile = {
 
 let currentVelocity = 10;
 let increasing = true;
+const MIN_VELOCITY = 60; // Set minimum velocity
+const MAX_VELOCITY = 120; 
 
 function drawProjectilePath(initialVelocity, gravity = 9.8, timeInterval = 0.1) {
     const angleRad = (-getCannonAngle() * Math.PI) / 180;
@@ -127,12 +129,12 @@ function drawGame() {
 function updateVelocity() {
     if(increasing) {
         currentVelocity += 1;
-        if(currentVelocity >= 100) {
+        if(currentVelocity >= MAX_VELOCITY) {
             increasing = false;
         }
     } else {
         currentVelocity -= 1;
-        if(currentVelocity <= 0) {
+        if(currentVelocity <= MIN_VELOCITY) {
             increasing = true;
         }
     }
