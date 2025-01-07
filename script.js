@@ -1,5 +1,6 @@
 import { rotateCannon, getCannonAngle } from "./utils/rotate.js";
 import { Crate, createTower, drawCrates, simulateCratePhysics } from "./physics/crates.js";
+import { Projectile, drawProjectilePath } from "./physics/projectile.js";
 
 const gameArea = document.getElementById("gameArea");
 const ctx = gameArea.getContext("2d");
@@ -91,43 +92,9 @@ const MAX_VELOCITY = 120; // Maximum velocity
 // Tower setup
 const crateWidth = 50;
 const crateHeight = 50;
-const towerBaseX = gameArea.width +500; // Position on the right side
+const towerBaseX = gameArea.width + 500; // Position on the right side
 const towerRows = 5;
 const towerColumns = 3;
-
-// Draw projectile trajectory
-function drawProjectilePath(initialVelocity, gravity = 9.8, timeInterval = 0.1) {
-    const angleRad = (-getCannonAngle() * Math.PI) / 180;
-    const vx = initialVelocity * Math.cos(angleRad);
-    const vy = initialVelocity * Math.sin(angleRad);
-
-    ctx.beginPath();
-    ctx.moveTo(pivotX, pivotY);
-
-    let t = 0;
-    let hitGround = false;
-
-    while (!hitGround) {
-        const x = vx * t;
-        const y = vy * t - 0.5 * gravity * t * t;
-
-        const canvasX = pivotX + x;
-        const canvasY = pivotY - y;
-
-        if (canvasX > gameArea.width || canvasY > gameArea.height - ground.height) {
-            hitGround = true;
-        } else {
-            ctx.lineTo(canvasX, canvasY);
-        }
-        t += timeInterval;
-    }
-
-    ctx.strokeStyle = `hsl(${initialVelocity * 3.6}, 100%, 50%)`; // Color changes with velocity
-    ctx.setLineDash([5, 5]);
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    ctx.setLineDash([]);
-}
 
 // Update and draw projectile
 function updateAndDrawProjectile() {
@@ -179,7 +146,7 @@ function drawGame() {
     }
 
     // Draw aiming trajectory
-    drawProjectilePath(currentVelocity);
+    drawProjectilePath(ctx, pivotX, pivotY, currentVelocity, getCannonAngle());
 
     // Draw projectile if active
     if (projectile.active) {
@@ -222,26 +189,21 @@ function updateVelocity() {
             increasing = true;
         }
     }
-    drawProjectilePath(currentVelocity);
+    drawProjectilePath(ctx, pivotX, pivotY, currentVelocity, getCannonAngle());
 }
 
 // Event listeners
 window.addEventListener("keydown", (event) => {
     if (event.key === "ArrowLeft") {
         rotateCannon(ctx, pivotX, pivotY, cannon, -5);
-        drawProjectilePath(currentVelocity);
+        drawProjectilePath(ctx, pivotX, pivotY, currentVelocity, getCannonAngle());
     } else if (event.key === "ArrowRight") {
         rotateCannon(ctx, pivotX, pivotY, cannon, 5);
-        drawProjectilePath(currentVelocity);
+        drawProjectilePath(ctx, pivotX, pivotY, currentVelocity, getCannonAngle());
     } else if (event.code === "Space" && !projectile.active) {
         // Play cannon sound
         cannonSound.play();
         
-        projectile = {
-            active: true,
-            time: 0,
-            initialVelocity: currentVelocity,
-            angle: getCannonAngle()
-        };
+        projectile = new Projectile(pivotX, pivotY, currentVelocity, getCannonAngle());
     }
 });
