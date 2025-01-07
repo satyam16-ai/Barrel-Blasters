@@ -1,4 +1,5 @@
 import { rotateCannon, getCannonAngle } from "./utils/rotate.js";
+import { Crate, createTower, drawCrates, simulateCratePhysics } from "./physics/crates.js";
 
 const gameArea = document.getElementById("gameArea");
 const ctx = gameArea.getContext("2d");
@@ -6,12 +7,14 @@ const ctx = gameArea.getContext("2d");
 gameArea.width = window.innerWidth;
 gameArea.height = 720;
 
+// Load images
 const background = new Image();
 const ground = new Image();
 const cannon_base = new Image();
 const cannon = new Image();
 const sun = new Image();
 const bullet = new Image();
+const crate = new Image();
 
 background.src = "assets/background.png";
 ground.src = "assets/ground.png";
@@ -19,11 +22,13 @@ cannon_base.src = "assets/cannon2.png";
 cannon.src = "assets/cannon.png";
 sun.src = "assets/sun.png";
 bullet.src = "assets/bullet.png";
+crate.src = "assets/crate.png";
 
+// Cannon pivot point
 const pivotX = 100 + cannon_base.width / 2;
 const pivotY = gameArea.height - ground.height - cannon_base.height;
 
-// Add projectile state
+// Projectile state
 let projectile = {
     active: false,
     time: 0,
@@ -33,9 +38,21 @@ let projectile = {
 
 let currentVelocity = 10;
 let increasing = true;
-const MIN_VELOCITY = 60; // Set minimum velocity
-const MAX_VELOCITY = 120; 
+const MIN_VELOCITY = 60; // Minimum velocity
+const MAX_VELOCITY = 120; // Maximum velocity
 
+// Tower setup
+const crateWidth = 50;
+const crateHeight = 50;
+const towerBaseX = gameArea.width - 300; // Position on the right side
+const towerBaseY = gameArea.height - ground.height * 1.75; // On the ground
+const towerRows = 5;
+const towerColumns = 3;
+
+// Create tower of crates
+const crates = createTower(towerBaseX, towerBaseY, towerRows, towerColumns, crateWidth, crateHeight);
+
+// Draw projectile trajectory
 function drawProjectilePath(initialVelocity, gravity = 9.8, timeInterval = 0.1) {
     const angleRad = (-getCannonAngle() * Math.PI) / 180;
     const vx = initialVelocity * Math.cos(angleRad);
@@ -43,10 +60,10 @@ function drawProjectilePath(initialVelocity, gravity = 9.8, timeInterval = 0.1) 
 
     ctx.beginPath();
     ctx.moveTo(pivotX, pivotY);
-    
+
     let t = 0;
     let hitGround = false;
-    
+
     while (!hitGround) {
         const x = vx * t;
         const y = vy * t - 0.5 * gravity * t * t;
@@ -62,7 +79,6 @@ function drawProjectilePath(initialVelocity, gravity = 9.8, timeInterval = 0.1) 
         t += timeInterval;
     }
 
-    // Style and draw the path
     ctx.strokeStyle = `hsl(${initialVelocity * 3.6}, 100%, 50%)`; // Color changes with velocity
     ctx.setLineDash([5, 5]);
     ctx.lineWidth = 2;
@@ -70,6 +86,7 @@ function drawProjectilePath(initialVelocity, gravity = 9.8, timeInterval = 0.1) 
     ctx.setLineDash([]);
 }
 
+// Update and draw projectile
 function updateAndDrawProjectile() {
     if (!projectile.active) return;
 
@@ -90,29 +107,42 @@ function updateAndDrawProjectile() {
         return;
     }
 
-    ctx.drawImage(bullet, bulletX - bullet.width/2, bulletY - bullet.height/2);
+    // Check collision with crates
+    crates.forEach((crate) => {
+        if (crate.checkCollision(bulletX, bulletY, bullet.width / 2)) {
+            projectile.active = false; // Stop projectile on collision
+        }
+    });
+
+    // Draw the bullet
+    ctx.drawImage(bullet, bulletX - bullet.width / 2, bulletY - bullet.height / 2);
     projectile.time += 0.2; // Increased bullet speed
 }
 
+// Main game loop
 function drawGame() {
     ctx.clearRect(0, 0, gameArea.width, gameArea.height);
 
     // Draw background
     ctx.drawImage(background, 0, 0, gameArea.width, gameArea.height);
-    
+
     // Draw ground
     for (let x = 0; x < gameArea.width; x += ground.width) {
         ctx.drawImage(ground, x, gameArea.height - ground.height);
     }
-    
+
     // Draw aiming trajectory
     drawProjectilePath(currentVelocity);
-    
+
     // Draw projectile if active
     if (projectile.active) {
         updateAndDrawProjectile();
     }
-    
+
+    // Draw and simulate crate tower
+    simulateCratePhysics(crates);
+    drawCrates(ctx, crates, crate);
+
     // Draw cannon and base
     rotateCannon(ctx, pivotX, pivotY, cannon, 0);
     ctx.drawImage(
@@ -121,20 +151,21 @@ function drawGame() {
         gameArea.height - ground.height - cannon_base.height
     );
     ctx.drawImage(sun, 1024, 100, 128, 128);
-    
+
     // Request next frame
     requestAnimationFrame(drawGame);
 }
 
+// Update velocity
 function updateVelocity() {
-    if(increasing) {
+    if (increasing) {
         currentVelocity += 1;
-        if(currentVelocity >= MAX_VELOCITY) {
+        if (currentVelocity >= MAX_VELOCITY) {
             increasing = false;
         }
     } else {
         currentVelocity -= 1;
-        if(currentVelocity <= MIN_VELOCITY) {
+        if (currentVelocity <= MIN_VELOCITY) {
             increasing = true;
         }
     }
@@ -157,7 +188,7 @@ window.addEventListener("keydown", (event) => {
 });
 
 // Image loading and game start
-const imagesLoaded = [background, ground, cannon_base, cannon, sun, bullet];
+const imagesLoaded = [background, ground, cannon_base, cannon, sun, bullet, crate];
 let loadedCount = 0;
 
 imagesLoaded.forEach((img) => {
