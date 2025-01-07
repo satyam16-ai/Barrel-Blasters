@@ -4,8 +4,8 @@ import { Crate, createTower, drawCrates, simulateCratePhysics } from "./physics/
 const gameArea = document.getElementById("gameArea");
 const ctx = gameArea.getContext("2d");
 
-gameArea.width = window.innerWidth;
-gameArea.height = 720;
+let pivotX, pivotY;
+let crates = [];
 
 // Load images
 const background = new Image();
@@ -24,10 +24,52 @@ sun.src = "assets/sun.png";
 bullet.src = "assets/bullet.png";
 crate.src = "assets/crate.png";
 
-// Cannon pivot point
-const pivotX = 100 + cannon_base.width / 2;
-const pivotY = gameArea.height - ground.height - cannon_base.height;
+// Add game initialization state
+let isGameInitialized = false;
 
+// Move all initialization logic into this function
+function initializeGame() {
+    gameArea.width = window.innerWidth;
+    gameArea.height = 720;
+
+    // Calculate pivot points after images are loaded
+    pivotX = 100 + cannon_base.width / 2;
+    pivotY = gameArea.height - ground.height - cannon_base.height;
+
+    // Initialize tower after ground height is known
+    const towerBaseY = gameArea.height - ground.height - crateHeight;
+    crates = createTower(towerBaseX, towerBaseY, towerRows, towerColumns, crateWidth, crateHeight);
+    
+    isGameInitialized = true;
+    requestAnimationFrame(drawGame);
+    setInterval(updateVelocity, 50);
+}
+
+// Modify image loading
+const requiredImages = [
+    { img: background, src: "assets/background.png" },
+    { img: ground, src: "assets/ground.png" },
+    { img: cannon_base, src: "assets/cannon2.png" },
+    { img: cannon, src: "assets/cannon.png" },
+    { img: sun, src: "assets/sun.png" },
+    { img: bullet, src: "assets/bullet.png" },
+    { img: crate, src: "assets/crate.png" }
+];
+
+let loadedImages = 0;
+
+// Replace image loading section
+requiredImages.forEach(({img, src}) => {
+    img.onload = () => {
+        loadedImages++;
+        if (loadedImages === requiredImages.length) {
+            initializeGame();
+        }
+    };
+    img.src = src;
+});
+
+// Cannon pivot point
 // Projectile state
 let projectile = {
     active: false,
@@ -44,13 +86,9 @@ const MAX_VELOCITY = 120; // Maximum velocity
 // Tower setup
 const crateWidth = 50;
 const crateHeight = 50;
-const towerBaseX = gameArea.width - 300; // Position on the right side
-const towerBaseY = gameArea.height - ground.height * 1.75; // On the ground
+const towerBaseX = gameArea.width +400; // Position on the right side
 const towerRows = 5;
 const towerColumns = 3;
-
-// Create tower of crates
-const crates = createTower(towerBaseX, towerBaseY, towerRows, towerColumns, crateWidth, crateHeight);
 
 // Draw projectile trajectory
 function drawProjectilePath(initialVelocity, gravity = 9.8, timeInterval = 0.1) {
@@ -121,6 +159,8 @@ function updateAndDrawProjectile() {
 
 // Main game loop
 function drawGame() {
+    if (!isGameInitialized) return;
+    
     ctx.clearRect(0, 0, gameArea.width, gameArea.height);
 
     // Draw background
@@ -185,19 +225,4 @@ window.addEventListener("keydown", (event) => {
             angle: getCannonAngle()
         };
     }
-});
-
-// Image loading and game start
-const imagesLoaded = [background, ground, cannon_base, cannon, sun, bullet, crate];
-let loadedCount = 0;
-
-imagesLoaded.forEach((img) => {
-    img.onload = () => {
-        loadedCount++;
-        if (loadedCount === imagesLoaded.length) {
-            // Start the game loop once all images are loaded
-            requestAnimationFrame(drawGame);
-            setInterval(updateVelocity, 50);
-        }
-    };
 });

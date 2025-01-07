@@ -1,4 +1,4 @@
-// crates.js
+
 export class Crate {
     constructor(x, y, width, height) {
         this.x = x;
