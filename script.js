@@ -24,6 +24,11 @@ sun.src = "assets/sun.png";
 bullet.src = "assets/bullet.png";
 crate.src = "assets/crate.png";
 
+// Load sounds
+const cannonSound = new Audio("assets/sound/cannon_sound.mp3");
+const hitCrateSound = new Audio("assets/sound/cannon-explosion.mp3");
+const hitGroundSound = new Audio("assets/sound/cannon-explosion.mp3");
+
 // Add game initialization state
 let isGameInitialized = false;
 
@@ -86,7 +91,7 @@ const MAX_VELOCITY = 120; // Maximum velocity
 // Tower setup
 const crateWidth = 50;
 const crateHeight = 50;
-const towerBaseX = gameArea.width + 550; // Position on the right side
+const towerBaseX = gameArea.width +500; // Position on the right side
 const towerRows = 5;
 const towerColumns = 3;
 
@@ -142,6 +147,7 @@ function updateAndDrawProjectile() {
     // Check if bullet hits ground or goes off screen
     if (bulletY >= gameArea.height - ground.height || bulletX > gameArea.width) {
         projectile.active = false;
+        hitGroundSound.play(); // Play ground hit sound
         return;
     }
 
@@ -149,6 +155,7 @@ function updateAndDrawProjectile() {
     crates.forEach((crate) => {
         if (crate.checkCollision(bulletX, bulletY, bullet.width / 2)) {
             projectile.active = false; // Stop projectile on collision
+            hitCrateSound.play(); // Play crate hit sound
         }
     });
 
@@ -227,6 +234,9 @@ window.addEventListener("keydown", (event) => {
         rotateCannon(ctx, pivotX, pivotY, cannon, 5);
         drawProjectilePath(currentVelocity);
     } else if (event.code === "Space" && !projectile.active) {
+        // Play cannon sound
+        cannonSound.play();
+        
         projectile = {
             active: true,
             time: 0,
