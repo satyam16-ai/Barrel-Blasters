@@ -86,7 +86,7 @@ const MAX_VELOCITY = 120; // Maximum velocity
 // Tower setup
 const crateWidth = 50;
 const crateHeight = 50;
-const towerBaseX = gameArea.width +400; // Position on the right side
+const towerBaseX = gameArea.width + 550; // Position on the right side
 const towerRows = 5;
 const towerColumns = 3;
 
@@ -190,7 +190,13 @@ function drawGame() {
         100,
         gameArea.height - ground.height - cannon_base.height
     );
-    ctx.drawImage(sun, 1024, 100, 128, 128);
+    ctx.drawImage(sun, gameArea.width - 150, 100, 128, 128);
+
+    // Check if all crates are destroyed
+    if (crates.every(crate => crate.isDestroyed)) {
+        alert("All crates destroyed! Restarting game...");
+        initializeGame();
+    }
 
     // Request next frame
     requestAnimationFrame(drawGame);
@@ -209,15 +215,18 @@ function updateVelocity() {
             increasing = true;
         }
     }
+    drawProjectilePath(currentVelocity);
 }
 
 // Event listeners
 window.addEventListener("keydown", (event) => {
     if (event.key === "ArrowLeft") {
         rotateCannon(ctx, pivotX, pivotY, cannon, -5);
+        drawProjectilePath(currentVelocity);
     } else if (event.key === "ArrowRight") {
         rotateCannon(ctx, pivotX, pivotY, cannon, 5);
-    } else if (event.key === " " && !projectile.active) {
+        drawProjectilePath(currentVelocity);
+    } else if (event.code === "Space" && !projectile.active) {
         projectile = {
             active: true,
             time: 0,
