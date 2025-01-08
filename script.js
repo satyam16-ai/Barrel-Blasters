@@ -84,7 +84,7 @@ let projectile = {
     angle: 0
 };
 
-let currentVelocity = 10;
+let currentVelocity = 100;
 let increasing = true;
 const MIN_VELOCITY = 60; // Minimum velocity
 const MAX_VELOCITY = 120; // Maximum velocity
