@@ -194,10 +194,10 @@ function updateVelocity() {
 
 // Event listeners
 window.addEventListener("keydown", (event) => {
-    if (event.key === "ArrowLeft") {
+    if (event.key === "ArrowUp") {
         rotateCannon(ctx, pivotX, pivotY, cannon, -5);
         drawProjectilePath(ctx, pivotX, pivotY, currentVelocity, getCannonAngle());
-    } else if (event.key === "ArrowRight") {
+    } else if (event.key === "ArrowDown") {
         rotateCannon(ctx, pivotX, pivotY, cannon, 5);
         drawProjectilePath(ctx, pivotX, pivotY, currentVelocity, getCannonAngle());
     } else if (event.code === "Space" && !projectile.active) {
