@@ -1,0 +1,49 @@
+body {
+    background: url('../UI/4394259_91657.jpg') no-repeat center center fixed;
+    /* Gradient background color in neon theme  */
+    background-size: cover;
+    color: #ffffff;
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.level-selection {
+    text-align: center;
+}
+
+.level-selection h1 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+}
+
+.levels {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.level {
+    background-color: #333;
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5em;
+    cursor: pointer;
+    transition: transform 0.3s, background-color 0.3s;
+}
+
+.level:hover {
+    transform: scale(1.1);
+    background-color: #555;
+}
+
+.level i {
+    margin-right: 10px;
+}

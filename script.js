@@ -168,7 +168,7 @@ function drawGame() {
 
     // Check if all crates are destroyed
     if (crates.every(crate => crate.isDestroyed)) {
-        alert("All crates destroyed! Restarting game...");
+        alert("Level complete!");
         initializeGame();
     }
 

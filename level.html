@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Level Selection</title>
+    <link rel="stylesheet" href="assets/styles/level_style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="level-selection">
+        <h1>Select Your Level</h1>
+        <div class="levels">
+            <div class="level" onclick="startLevel(1)"><i class="fas fa-gamepad"></i> 1</div>
+            <div class="level" id="level-2" onclick="locked()"><i class="fas fa-lock"></i> 2</div>
+            <div class="level" onclick="locked()"><i class="fas fa-lock"></i> 3</div>
+            <div class="level" onclick="locked()"><i class="fas fa-lock"></i> 4</div>
+            <div class="level" onclick="locked()"><i class="fas fa-lock"></i> 5</div>
+            <div class="level" onclick="locked()"><i class="fas fa-lock"></i> 6</div>
+            <div class="level" onclick="locked()"><i class="fas fa-lock"></i> 7</div>
+            <div class="level" onclick="locked()"><i class="fas fa-lock"></i> 8</div>
+            <div class="level" onclick="locked()"><i class="fas fa-lock"></i> 9</div>
+        </div>
+    </div>
+    <script src="./level/level.js"></script>
+</body>
+</html>
